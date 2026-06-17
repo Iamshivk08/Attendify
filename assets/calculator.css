@@ -1,0 +1,498 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+
+body {
+    min-height: 100vh;
+    background: #f4f7fb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* Theme Button */
+
+/* Theme Toggle Button */
+
+.theme {
+
+    position: fixed;
+
+    top: 20px;
+    right: 20px;
+
+    width: 45px;
+    height: 45px;
+
+    border-radius: 50%;
+
+    border: none;
+
+    background: #333;
+
+    color: white;
+
+    font-size: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    padding: 0;
+
+    transition: 0.3s;
+
+}
+
+
+.theme:hover {
+
+    transform: scale(1.1);
+
+    background: #2563eb;
+
+}
+
+
+
+/* Main Container */
+
+.container {
+
+    width: 90%;
+    max-width: 900px;
+
+    background: white;
+
+    padding: 30px;
+
+    border-radius: 15px;
+
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+
+}
+
+
+
+h1 {
+
+    text-align: center;
+    color: #333;
+
+}
+
+
+.subtitle {
+
+    text-align: center;
+    margin: 10px 0 30px;
+    color: gray;
+
+}
+
+
+
+/* Calculator Section */
+
+
+.calculator {
+
+    display: flex;
+    gap: 30px;
+
+    justify-content: space-between;
+
+}
+
+
+
+.input-box,
+.result {
+
+    width: 50%;
+
+}
+
+
+
+/* Inputs */
+
+label {
+
+    display: block;
+
+    margin-top: 15px;
+
+    font-weight: bold;
+
+}
+
+
+input {
+
+    width: 100%;
+
+    padding: 12px;
+
+    margin-top: 5px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 8px;
+
+    font-size: 15px;
+
+}
+
+
+
+button {
+
+    margin-top: 20px;
+
+    width: 100%;
+
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #2563eb;
+
+    color: white;
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+}
+
+
+button:hover {
+
+    background: #1d4ed8;
+
+}
+
+
+
+/* Result */
+
+
+.result {
+
+    text-align: center;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+}
+
+
+
+.circle {
+
+    width: 150px;
+
+    height: 150px;
+
+    margin: auto;
+
+    border-radius: 50%;
+
+    background: #e5e7eb;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+#percentage {
+
+    font-size: 35px;
+
+    font-weight: bold;
+
+    color: #2563eb;
+
+}
+
+
+
+#status {
+
+    margin-top: 20px;
+
+    color: #333;
+
+}
+
+
+
+#details {
+
+    margin-top: 10px;
+
+    color: gray;
+
+}
+
+
+
+/* History */
+
+
+.history {
+
+    margin-top: 40px;
+
+}
+
+
+.history h2 {
+
+    margin-bottom: 15px;
+
+}
+
+
+.history ul {
+
+    list-style: none;
+
+}
+
+
+
+.history li {
+
+    background: #f1f5f9;
+
+    padding: 12px;
+
+    margin: 8px 0;
+
+    border-radius: 8px;
+
+}
+
+
+
+/* Delete Button */
+
+.delete-btn {
+
+    background: #dc2626;
+
+    width: auto;
+
+    padding: 10px 15px;
+
+}
+
+
+
+.delete-btn:hover {
+
+    background: #b91c1c;
+
+}
+
+
+
+/* Responsive */
+
+@media(max-width:700px) {
+
+    .calculator {
+
+        flex-direction: column;
+
+    }
+
+
+    .input-box,
+    .result {
+
+        width: 100%;
+
+    }
+
+}
+
+/* Dark Theme */
+
+body.dark {
+
+    background: #111827;
+
+    color: white;
+
+}
+
+
+body.dark .container {
+
+    background: #1f2937;
+
+}
+
+
+body.dark h1,
+body.dark h2 {
+
+    color: white;
+
+}
+
+
+body.dark .subtitle,
+body.dark #details {
+
+    color: #d1d5db;
+
+}
+
+
+body.dark input {
+
+    background: #374151;
+
+    color: white;
+
+    border: 1px solid #555;
+
+}
+
+
+body.dark .history li {
+
+    background: #374151;
+
+}
+
+
+body.dark .circle {
+
+    background: #374151;
+
+}
+
+
+body.dark .theme {
+
+    background: white;
+
+    color: black;
+
+}
+
+.circle {
+
+    width: 160px;
+    height: 160px;
+
+    margin: auto;
+
+    border-radius: 50%;
+
+    background: conic-gradient(
+        #2563eb 0deg,
+        #e5e7eb 0deg
+    );
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    position: relative;
+
+    transition: 0.5s ease;
+
+    animation: pop 0.5s ease;
+
+}
+
+
+
+.circle::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 125px;
+
+    height: 125px;
+
+    background: white;
+
+    border-radius: 50%;
+
+}
+
+
+
+#percentage {
+
+    position: relative;
+
+    z-index: 1;
+
+    font-size: 38px;
+
+    font-weight: bold;
+
+    color: #2563eb;
+
+}
+
+
+
+/* Animation */
+
+@keyframes pop {
+
+    0%{
+
+        transform: scale(0.7);
+
+    }
+
+    100%{
+
+        transform: scale(1);
+
+    }
+
+}
+
+.good {
+
+    color: #16a34a !important;
+
+}
+
+
+.bad {
+
+    color: #dc2626 !important;
+
+}
