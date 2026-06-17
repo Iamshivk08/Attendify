@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Profile - Attendify</title>
+
+    <link rel="stylesheet" href="./profile.css">
+
+</head>
+
+
+<body>
+
+
+
+    <!-- Sidebar -->
+
+    <div class="sidebar">
+
+
+        <h2>
+            Attendify
+        </h2>
+
+
+
+        <a href="dashboard.html">
+            Dashboard
+        </a>
+
+
+
+        <a href="calculator.html">
+            Attendance Calculator
+        </a>
+
+
+
+        <a href="records.html">
+            Attendance Records
+        </a>
+
+
+
+        <a href="analytics.html">
+            Analytics
+        </a>
+
+
+
+        <a class="active" href="profile.html">
+            Student Profile
+        </a>
+
+
+
+        <button onclick="logout()">
+            Logout
+        </button>
+
+
+    </div>
+
+
+
+
+
+
+
+
+    <!-- Main -->
+
+
+    <div class="main">
+
+
+
+        <div class="header">
+
+
+            <div>
+
+                <h1>
+                    Student Profile
+                </h1>
+
+
+                <p>
+                    Manage your personal information
+                </p>
+
+
+            </div>
+
+
+
+            <button class="theme" onclick="toggleTheme()">
+                🌙
+            </button>
+
+
+        </div>
+
+
+
+
+
+
+
+
+
+        <div class="profile-card">
+
+
+
+            <div class="profile-img">
+
+                👨‍🎓
+
+            </div>
+
+
+
+            <h2 id="displayName">
+                Student Name
+            </h2>
+
+
+            <p id="displayEmail">
+                student@gmail.com
+            </p>
+
+
+
+
+
+
+
+            <div class="details">
+
+
+                <div>
+
+                    <label>
+                        Full Name
+                    </label>
+
+                    <input id="name" placeholder="Enter Name">
+
+
+                </div>
+
+
+
+
+
+                <div>
+
+                    <label>
+                        Email
+                    </label>
+
+                    <input id="email" placeholder="Enter Email">
+
+
+                </div>
+
+
+
+
+
+                <div>
+
+                    <label>
+                        Roll Number
+                    </label>
+
+                    <input id="roll" placeholder="Enter Roll Number">
+
+
+                </div>
+
+
+
+
+
+                <div>
+
+                    <label>
+                        Department
+                    </label>
+
+                    <input id="department" placeholder="Enter Department">
+
+
+                </div>
+
+
+
+
+
+                <div>
+
+                    <label>
+                        Phone Number
+                    </label>
+
+                    <input id="phone" placeholder="Enter Phone">
+
+
+                </div>
+
+
+
+            </div>
+
+
+
+
+
+
+
+            <button class="save" onclick="saveProfile()">
+
+                Save Profile
+
+            </button>
+
+
+
+        </div>
+
+
+
+
+
+
+
+
+
+        <!-- Attendance Summary -->
+
+
+        <div class="summary">
+
+
+            <h2>
+                Attendance Summary
+            </h2>
+
+
+
+            <div class="cards">
+
+
+
+                <div class="card">
+
+                    <h3>
+                        Total Classes
+                    </h3>
+
+                    <h1 id="total">
+                        0
+                    </h1>
+
+                </div>
+
+
+
+
+
+                <div class="card">
+
+                    <h3>
+                        Attended
+                    </h3>
+
+                    <h1 id="attended">
+                        0
+                    </h1>
+
+                </div>
+
+
+
+
+
+
+                <div class="card">
+
+                    <h3>
+                        Percentage
+                    </h3>
+
+                    <h1 id="percentage">
+                        0%
+                    </h1>
+
+                </div>
+
+
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <script src="./profile.js"></script>
+
+
+</body>
+
+</html>

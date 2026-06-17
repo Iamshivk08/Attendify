@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Attendance Records - Attendify</title>
+
+    <link rel="stylesheet" href="./records.css">
+
+</head>
+
+
+<body>
+
+
+
+    <!-- Sidebar -->
+
+    <div class="sidebar">
+
+
+        <h2> Attendify</h2>
+
+
+        <a href="dashboard.html">
+             Dashboard
+        </a>
+
+
+        <a href="calculator.html">
+             Attendance Calculator
+        </a>
+
+
+        <a class="active" href="records.html">
+             Attendance Records
+        </a>
+
+
+        <a href="analytics.html">
+             Analytics
+        </a>
+
+
+        <a href="profile.html">
+             Student Profile
+        </a>
+
+
+
+        <button onclick="logout()">
+
+             Logout
+
+        </button>
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- Main Content -->
+
+
+    <div class="main">
+
+
+
+        <div class="header">
+
+
+            <div>
+
+                <h1>
+                     Attendance Records
+                </h1>
+
+
+                <p>
+                    View your previous attendance calculations
+                </p>
+
+
+            </div>
+
+
+
+            <button class="theme" onclick="toggleTheme()">
+
+                🌙
+
+            </button>
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <div class="record-container">
+
+
+            <h2>
+                Calculation History
+            </h2>
+
+
+
+            <table>
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Date
+                        </th>
+
+
+                        <th>
+                            Total Classes
+                        </th>
+
+
+                        <th>
+                            Attended
+                        </th>
+
+
+                        <th>
+                            Percentage
+                        </th>
+
+
+                        <th>
+                            Status
+                        </th>
+
+
+                        <th>
+                            Action
+                        </th>
+
+
+                    </tr>
+
+                </thead>
+
+
+
+                <tbody id="recordTable">
+
+
+                </tbody>
+
+
+            </table>
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+
+    <script src="./records.js"></script>
+
+
+</body>
+
+</html>

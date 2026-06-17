@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Attendance Calculator</title>
+
+    <link rel="stylesheet" href="./calculator.css">
+
+</head>
+
+
+<body>
+
+
+    <button class="theme" onclick="toggleTheme()">
+        🌙
+    </button>
+
+
+    <div class="container">
+
+
+        <h1>
+            Attendance Calculator
+        </h1>
+
+
+        <p class="subtitle">
+            Track your attendance percentage easily
+        </p>
+
+
+
+        <div class="calculator">
+
+
+            <div class="input-box">
+
+
+                <label>Total Classes</label>
+
+                <input type="number" id="total" placeholder="Enter total classes">
+
+
+
+                <label>Attended Classes</label>
+
+                <input type="number" id="attended" placeholder="Enter attended classes">
+
+
+
+                <label>Required Percentage</label>
+
+                <input type="number" id="target" value="75">
+
+
+
+                <button onclick="calculate()">
+                    Calculate Attendance
+                </button>
+
+
+            </div>
+
+
+
+
+
+            <div class="result">
+
+
+                <div class="circle">
+
+                    <span id="percentage">
+                        0%
+                    </span>
+
+                </div>
+
+
+
+                <h2 id="status">
+                    Waiting...
+                </h2>
+
+
+                <div id="details">
+
+                    Enter details and calculate
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <div class="history">
+
+            <h2>
+                📜 Calculation History
+            </h2>
+
+            <button class="delete-btn" onclick="deleteHistory()">
+
+                🗑️ Delete History
+
+            </button>
+
+            <ul id="historyList">
+
+            </ul>
+
+        </div>
+
+
+
+    </div>
+
+
+    <script src="./calculator.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Attendify Dashboard</title>
+
+<link rel="stylesheet" href="./dashboard.css">
+
+</head>
+
+
+<body>
+
+
+<!-- Sidebar -->
+
+<div class="sidebar">
+
+
+    <h2> Attendify</h2>
+
+
+    <a class="active" href="dashboard.html">
+         Dashboard
+    </a>
+
+
+    <a href="calculator.html">
+         Attendance Overview
+    </a>
+
+
+    <a href="records.html">
+         Attendance Records
+    </a>
+
+
+    <a href="analytics.html">
+         Analytics
+    </a>
+
+
+    <a href="profile.html">
+         Student Profile
+    </a>
+
+
+
+    <button onclick="logout()">
+         Logout
+    </button>
+
+
+</div>
+
+
+
+
+
+<!-- Main Content -->
+
+<div class="main">
+
+
+
+    <!-- Header -->
+
+    <div class="header">
+
+
+        <div>
+
+            <h1>
+                Welcome Back 👋
+            </h1>
+
+
+            <p>
+                Track your attendance performance
+            </p>
+
+
+        </div>
+
+
+
+        <button class="theme" onclick="toggleTheme()">
+
+            🌙
+
+        </button>
+
+
+    </div>
+
+
+
+
+
+
+    <!-- Dashboard Cards -->
+
+
+    <div class="cards">
+
+
+
+        <div class="card">
+
+
+            <div class="icon">
+                
+            </div>
+
+
+            <h3>
+                Total Classes
+            </h3>
+
+
+            <h1>
+                120
+            </h1>
+
+
+        </div>
+
+
+
+
+
+
+        <div class="card">
+
+
+            <div class="icon">
+                
+            </div>
+
+
+            <h3>
+                Attended Classes
+            </h3>
+
+
+            <h1>
+                96
+            </h1>
+
+
+        </div>
+
+
+
+
+
+
+
+        <div class="card">
+
+
+            <div class="icon">
+                
+            </div>
+
+
+            <h3>
+                Attendance Score
+            </h3>
+
+
+            <h1 class="green">
+                80%
+            </h1>
+
+
+        </div>
+
+
+
+
+
+
+
+        <div class="card">
+
+
+            <div class="icon">
+                ⭐
+            </div>
+
+
+            <h3>
+                Performance
+            </h3>
+
+
+            <h1 class="green">
+                Good
+            </h1>
+
+
+        </div>
+
+
+
+
+    </div>
+
+
+
+
+
+
+
+
+    <!-- Attendance Performance -->
+
+
+    <div class="overview">
+
+
+        <h2>
+             Attendance Performance
+        </h2>
+
+
+
+        <div class="progress">
+
+
+
+            <div class="circle">
+
+                80%
+
+            </div>
+
+
+
+
+
+
+            <div class="info">
+
+
+                <h3>
+                    Attendance Status
+                </h3>
+
+
+                <p>
+                    Required Percentage : 
+                    <b>75%</b>
+                </p>
+
+
+
+                <p class="success">
+
+                    🎉 Great! Your attendance is above the required limit.
+
+                </p>
+
+
+
+            </div>
+
+
+
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+    <!-- Recent Activity -->
+
+
+    <div class="recent">
+
+
+        <h2>
+             Recent Attendance Activity
+        </h2>
+
+
+
+
+        <ul>
+
+
+            <li>
+
+                 Mathematics 
+                <span>
+                    Present ✅
+                </span>
+
+            </li>
+
+
+
+
+            <li>
+
+                 Java Programming
+                <span>
+                    Present ✅
+                </span>
+
+            </li>
+
+
+
+
+
+            <li>
+
+                  Database Systems
+                <span class="absent">
+                    Absent ❌
+                </span>
+
+            </li>
+
+
+
+        </ul>
+
+
+
+    </div>
+
+
+
+
+
+</div>
+
+
+
+
+<script src="./dashboard.js"></script>
+
+
+</body>
+
+</html>
