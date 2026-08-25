@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Attendify — attendance, kept honest</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --ink: #1B2436;
+  --ink-soft: #5B6478;
+  --paper: #F5F6F8;
+  --paper-card: #FFFFFF;
+  --sage: #2F7D52;
+  --sage-dark: #24623F;
+  --sage-soft: #E3F1E8;
+  --brass: #B8860B;
+  --red-pen: #A93226;
+  --red-pen-soft: #F5E1DE;
+  --line: #E1E4EA;
+  --primary: #22406B;
+  --primary2: #3B6EA5;
+  --primary-grad: linear-gradient(135deg, #1B2F52 0%, #2F5A8C 100%);
+  --primary-soft: #E7EDF5;
+  --shadow: 0 10px 30px rgba(27,36,54,0.10);
+  --shadow-sm: 0 2px 10px rgba(27,36,54,0.06);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --welcome-grad: linear-gradient(180deg, #EEF1F6 0%, #F8F9FB 55%, #FFFFFF 100%);
+  --font-display: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+}
+
+[data-theme="dark"]{
+  --ink: #EDEFF4;
+  --ink-soft: #9BA2B4;
+  --paper: #12182A;
+  --paper-card: #1B2237;
+  --sage-soft: rgba(47,125,82,0.18);
+  --red-pen-soft: rgba(169,50,38,0.2);
+  --line: #2B3350;
+  --primary-soft: rgba(59,110,165,0.2);
+  --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  --shadow-sm: 0 2px 10px rgba(0,0,0,0.25);
+}
+[data-theme="dark"] .auth-side{ background: var(--primary-grad); }
+[data-theme="dark"] .field input, [data-theme="dark"] .inline-form input, [data-theme="dark"] .inline-form select,
+[data-theme="dark"] .filter-row select, [data-theme="dark"] .filter-row input, [data-theme="dark"] .ledger-actions select{
+  background: var(--paper); color: var(--ink); border-color: var(--line);
+}
+[data-theme="dark"] .stat-pill{ background: var(--paper); }
+[data-theme="dark"] .cal-cell{ background: var(--paper); }
+[data-theme="dark"] .badge-cancelled{ background:#33355C; color:#B7BADD; }
+[data-theme="dark"]{ --welcome-grad: linear-gradient(180deg, #151C30 0%, #12182A 60%, #0F1424 100%); }
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0;
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+h1,h2,h3{ font-family: var(--font-display); color: var(--ink); margin:0; }
+p{ margin:0; }
+a{ color: var(--primary); }
+button{ font-family: inherit; cursor:pointer; }
+input,select{ font-family: inherit; }
+ul{ margin:0; padding:0; list-style:none; }
+
+:focus-visible{ outline: 2.5px solid var(--brass); outline-offset: 2px; }
+
+.fade-in{ animation: fadeIn .35s ease both; }
+@keyframes fadeIn{ from{ opacity:0; transform: translateY(6px);} to{ opacity:1; transform:none; } }
+@keyframes logoBadgePulse{ 0%,100%{ transform: scale(1);} 50%{ transform: scale(1.1);} }
+.logo-badge{ transform-box: fill-box; transform-origin: center; animation: logoBadgePulse 2.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce){
+  .fade-in{ animation: none; }
+  .logo-badge{ animation: none; }
+  *{ scroll-behavior:auto !important; }
+}
+
+/* ===================== Auth layout ===================== */
+.auth-wrap{ min-height:100vh; display:grid; grid-template-columns: 1fr; }
+@media (min-width: 920px){ .auth-wrap{ grid-template-columns: 1.05fr 1fr; } }
+
+.auth-side{
+  background: var(--primary-grad);
+  color: #EDE9FF;
+  position:relative;
+  padding: 48px 48px 32px;
+  display:flex; flex-direction:column; justify-content:space-between;
+  overflow:hidden;
+  min-height: 280px;
+}
+.auth-side-inner{ position:relative; z-index:2; max-width: 460px; }
+.auth-brand{ display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:1.25rem; color:#FFFFFF; margin-bottom: 48px; text-decoration:none; }
+.auth-brand svg{ width:34px; height:34px; }
+.auth-sub{ color:#E3DFFF; font-size:1.02rem; line-height:1.6; max-width:38ch; }
+.ruled{
+  position:absolute; inset:0;
+  background-image: radial-gradient(circle at 85% 15%, rgba(255,255,255,0.16) 0, transparent 45%), repeating-linear-gradient(180deg, transparent 0 38px, rgba(255,255,255,0.05) 38px 39px);
+  z-index:1;
+}
+.stamp{
+  margin-top:40px; display:inline-flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:700; letter-spacing:.03em; text-transform:uppercase; font-size:.8rem;
+  color: #fff; border:2px dashed rgba(255,255,255,0.55); border-radius:999px; padding:10px 20px;
+  transform: rotate(-6deg); opacity:.95; position:relative; z-index:2; background: rgba(255,255,255,0.08);
+}
+.stamp-bad{ color: #FFE3E9; border-color: rgba(255,227,233,0.6); }
+
+.auth-form-side{ display:flex; align-items:center; justify-content:center; padding: 32px 20px 56px; }
+.auth-card{ width:100%; max-width: 400px; }
+
+.floating-theme-btn{ position:fixed; top:18px; right:18px; z-index:60; background: var(--paper-card); }
+
+/* ===================== Welcome / landing ===================== */
+.welcome-page{
+  min-height:100vh; background: var(--welcome-grad);
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  padding: 64px 20px 60px;
+}
+.welcome-logo svg{ width:96px; height:96px; }
+.welcome-title{ font-family:var(--font-display); font-weight:800; font-size:2.4rem; color: var(--primary); margin:20px 0 8px; }
+.welcome-sub{ color: var(--ink-soft); font-size:1.08rem; margin-bottom:40px; }
+.feature-grid{ display:grid; grid-template-columns:1fr; gap:16px; max-width:640px; width:100%; margin-bottom:36px; }
+@media (min-width:640px){ .feature-grid{ grid-template-columns: 1fr 1fr; } }
+.feature-card{
+  background: var(--paper-card); border:1.5px solid var(--line); border-radius: var(--radius);
+  padding:26px 22px; box-shadow: var(--shadow-sm); text-align:center;
+}
+.feature-card h3{ font-family:var(--font-display); color: var(--primary); font-size:1.05rem; margin-bottom:8px; font-weight:700; }
+.feature-card p{ color: var(--ink-soft); font-size:.9rem; line-height:1.55; }
+.welcome-cta{ padding:15px 32px; font-size:1rem; text-decoration:none; }
+.welcome-foot{ margin-top:18px; font-size:.9rem; color: var(--ink-soft); }
+.welcome-foot a{ font-weight:600; }
+.form-title{ font-size:1.6rem; margin-bottom:6px; }
+.form-sub{ color: var(--ink-soft); font-size:.94rem; line-height:1.5; margin-bottom:22px; }
+.form{ display:flex; flex-direction:column; gap:16px; }
+.field{ display:flex; flex-direction:column; gap:6px; font-size:.86rem; font-weight:600; color: var(--ink); border:none; padding:0; }
+.field input[type=text], .field input[type=email], .field input[type=password], .field input[type=date]{
+  font-family: var(--font-body); font-weight:400; font-size:1rem;
+  padding:12px 14px; border-radius: var(--radius-sm); border:1.5px solid var(--line);
+  background: var(--paper-card); color: var(--ink);
+}
+.field input:focus{ border-color: var(--primary); }
+.segmented{ display:flex; gap:8px; }
+.seg-opt{ flex:1; }
+.seg-opt input{ position:absolute; opacity:0; pointer-events:none; }
+.seg-opt span{
+  display:block; text-align:center; padding:11px 8px; border-radius: var(--radius-sm);
+  border:1.5px solid var(--line); font-weight:500; color: var(--ink-soft); font-size:.92rem;
+}
+.seg-opt input:checked + span{ border-color: var(--primary); background: var(--primary-soft); color: var(--primary); font-weight:600; }
+.seg-opt input:focus-visible + span{ outline: 2.5px solid var(--brass); outline-offset:2px; }
+
+.btn{
+  border:none; border-radius: var(--radius-sm); padding: 12px 18px; font-weight:600; font-size:.95rem;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px; transition: transform .12s ease, box-shadow .12s ease, background .15s ease;
+}
+.btn-primary{ background: var(--primary-grad); color:#fff; box-shadow: 0 6px 18px rgba(27,47,82,0.28); }
+.btn-primary:hover{ filter: brightness(1.06); }
+.btn-ghost{ background: transparent; color: var(--ink); border:1.5px solid var(--line); }
+.btn-ghost:hover{ background: rgba(31,42,68,0.05); }
+.btn-block{ width:100%; }
+.btn-sm{ padding:8px 12px; font-size:.82rem; }
+.btn:active{ transform: scale(.98); }
+.btn-present{ background: var(--sage-soft); color: var(--sage-dark); }
+.btn-present.is-active{ background: var(--sage-dark); color:#fff; }
+.btn-absent{ background: var(--red-pen-soft); color: var(--red-pen); }
+.btn-absent.is-active{ background: var(--red-pen); color:#fff; }
+
+.form-error{ background: var(--red-pen-soft); color: var(--red-pen); border-radius: var(--radius-sm); padding:10px 12px; font-size:.86rem; }
+.form-links-row{ display:flex; justify-content:flex-end; margin-top:-8px; }
+.link-inline{ background:none; border:none; color: var(--primary); font-weight:600; font-size:.85rem; padding:0; }
+.link-inline:hover{ text-decoration:underline; }
+.otp-demo-banner{ background: var(--primary-soft); color: var(--primary); border-radius: var(--radius-sm); padding:11px 14px; font-size:.88rem; margin-bottom:16px; text-align:center; line-height:1.5; }
+.form-foot{ margin-top:18px; font-size:.9rem; color: var(--ink-soft); text-align:center; }
+.form-note{ margin-top:10px; font-size:.78rem; color: var(--ink-soft); text-align:center; opacity:.8; }
+
+/* Stepper */
+.stepper{ display:flex; align-items:center; gap:10px; margin-bottom:26px; }
+.step{ display:flex; align-items:center; gap:8px; font-size:.85rem; font-weight:600; color: var(--ink-soft); }
+.step span{ width:24px; height:24px; border-radius:50%; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:.78rem; }
+.step.active{ color: var(--ink); }
+.step.active span{ border-color: var(--primary); background: var(--primary-grad); color:#fff; }
+.step.done span{ border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+.step-line{ flex:1; height:1.5px; background: var(--line); max-width:40px; }
+
+.target-picker{ margin: 8px 0 22px; text-align:center; }
+.target-value{ font-family:var(--font-display); font-size:2.4rem; font-weight:700; color: var(--primary); margin-bottom:10px; }
+.slider{ width:100%; accent-color: var(--primary); height:6px; }
+.slider-scale{ display:flex; justify-content:space-between; font-size:.78rem; color: var(--ink-soft); margin-top:6px; }
+
+.inline-form{ display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+.inline-form input, .inline-form select{ flex:1; min-width:130px; padding:11px 12px; border-radius: var(--radius-sm); border:1.5px solid var(--line); background: var(--paper-card); font-size:.94rem; }
+
+.chip-list{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px; }
+.chip{ display:flex; align-items:center; gap:8px; background: var(--primary-soft); color: var(--primary); padding:8px 8px 8px 14px; border-radius:999px; font-size:.88rem; font-weight:600; }
+.chip button{ background:none; border:none; color: var(--primary); display:flex; padding:4px; border-radius:50%; }
+.chip button:hover{ background: rgba(51,96,75,0.15); }
+.chip-empty{ color: var(--ink-soft); font-size:.88rem; }
+
+.form-row{ display:flex; justify-content:space-between; gap:10px; }
+
+/* ===================== App shell ===================== */
+.shell{ min-height:100vh; display:flex; flex-direction:column; }
+.topbar{
+  display:flex; align-items:center; gap:14px; padding: 14px 20px; background: var(--paper-card);
+  border-bottom:1.5px solid var(--line); position:sticky; top:0; z-index:20;
+}
+.brand{ display:flex; align-items:center; gap:9px; color: var(--primary); }
+.brand-mark{ display:flex; }
+.brand-mark svg{ width:26px; height:26px; display:block; }
+.sidenav-brand .brand-mark svg{ width:52px; height:52px; }
+.brand-name{ font-family:var(--font-display); font-weight:700; font-size:1.1rem; display:none; color: var(--ink); }
+@media (min-width:640px){ .brand-name{ display:inline; } }
+.topbar-title{ font-size:1.05rem; font-weight:600; color: var(--ink-soft); flex:1; text-align:center; }
+@media (min-width:640px){ .topbar-title{ text-align:left; } }
+.theme-btn{
+  width:38px; height:38px; border-radius:50%; background: var(--paper); border:1.5px solid var(--line); color: var(--ink-soft);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.theme-btn:hover{ color: var(--primary); border-color: var(--primary); }
+.user-menu{ position:relative; }
+.avatar-btn{
+  width:38px; height:38px; border-radius:50%; background: var(--primary-grad); color:#fff; border:none;
+  font-family:var(--font-display); font-weight:600; font-size:.82rem; display:flex; align-items:center; justify-content:center;
+  box-shadow: 0 4px 12px rgba(27,47,82,0.3);
+}
+.menu-pop{
+  position:absolute; right:0; top:48px; background:#fff; border-radius: var(--radius-sm); box-shadow: var(--shadow);
+  border:1px solid var(--line); min-width:200px; padding:10px; z-index:30;
+}
+.menu-name{ font-weight:600; padding: 4px 10px; }
+.menu-email{ font-size:.78rem; color: var(--ink-soft); padding: 0 10px 8px; border-bottom:1px solid var(--line); margin-bottom:6px; }
+.menu-item{
+  display:flex; align-items:center; gap:8px; width:100%; text-align:left; background:none; border:none;
+  padding:9px 10px; border-radius:8px; font-size:.9rem; color: var(--ink); text-decoration:none;
+}
+.menu-item:hover{ background: var(--paper); }
+.menu-item.danger{ color: var(--red-pen); }
+
+.shell-body{ flex:1; display:flex; }
+.sidenav{ display:none; }
+@media (min-width:860px){
+  .sidenav{
+    display:flex; flex-direction:column; gap:4px; width:236px; padding:26px 16px; position:sticky; top:0; align-self:flex-start;
+    height:100vh; background: var(--primary-grad); color:#fff;
+  }
+  .sidenav-brand{ display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:30px; }
+  .sidenav-brand .brand-mark{ width:52px; height:52px; }
+  .sidenav-brand-name{ font-family:var(--font-display); font-weight:700; font-size:1.2rem; color:#fff; }
+  .nav-link{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius: var(--radius-sm); color: rgba(255,255,255,0.78); text-decoration:none; font-weight:500; }
+  .nav-link:hover{ background: rgba(255,255,255,0.1); color:#fff; }
+  .nav-link.active{ background: rgba(255,255,255,0.18); color: #fff; font-weight:600; box-shadow: 0 4px 14px rgba(0,0,0,0.12); }
+  .sidenav-spacer{ flex:1; }
+  .sidenav-logout{
+    display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius: var(--radius-sm); border:none;
+    background: rgba(255,255,255,0.12); color:#fff; font-weight:600; font-size:.9rem; width:100%;
+  }
+  .sidenav-logout:hover{ background: rgba(255,255,255,0.2); }
+}
+.nav-icon{ display:flex; }
+
+.view{ flex:1; padding: 20px 16px 100px; max-width:980px; margin:0 auto; width:100%; }
+@media (min-width:860px){ .view{ padding: 28px 32px 40px; } }
+
+.tabbar{
+  position:fixed; bottom:0; left:0; right:0; display:flex; justify-content:space-around;
+  background: var(--paper-card); border-top:1.5px solid var(--line); padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+  z-index:20;
+}
+@media (min-width:860px){ .tabbar{ display:none; } }
+.tab-link{ display:flex; flex-direction:column; align-items:center; gap:3px; color: var(--ink-soft); text-decoration:none; font-size:.68rem; padding:4px 10px; border-radius:10px; }
+.tab-link.active{ color: var(--primary); }
+.tab-label{ font-weight:600; }
+
+/* ===================== Cards / panels ===================== */
+.panel{ background: var(--paper-card); border:1.5px solid var(--line); border-radius: var(--radius); padding:20px; margin-bottom:20px; box-shadow: var(--shadow-sm); }
+.panel-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; gap:10px; }
+.panel-head h2{ font-size:1.1rem; }
+.muted{ color: var(--ink-soft); font-size:.86rem; }
+.section-head{ display:flex; align-items:center; justify-content:space-between; margin: 8px 0 14px; }
+.section-head h2{ font-size:1.2rem; }
+.link-btn{ background:none; border:none; color: var(--primary); font-weight:600; font-size:.88rem; padding:0; text-decoration:none; }
+
+/* Hero */
+.hero-card{
+  background: var(--paper-card); border:1.5px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding:26px; margin-bottom:26px; display:flex; flex-direction:column; align-items:center; gap:22px; text-align:center;
+}
+@media (min-width:680px){ .hero-card{ flex-direction:row; text-align:left; padding:32px; } }
+.hero-ring{ position:relative; flex-shrink:0; }
+.ring-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.ring-pct{ font-family:var(--font-display); font-size:1.8rem; font-weight:700; color: var(--ink); }
+.ring-label{ font-size:.72rem; color: var(--ink-soft); text-transform:uppercase; letter-spacing:.06em; }
+.hero-ring .stamp{ position:absolute; bottom:-6px; right:-18px; font-size:.6rem; padding:6px 12px; color: var(--sage-dark); border-color: var(--sage); background: var(--paper-card); }
+.hero-ring .stamp.stamp-bad{ color: var(--red-pen); border-color: var(--red-pen); background: var(--paper-card); }
+.stamp-sm{ white-space:nowrap; }
+.hero-stats h2{ font-size:1.4rem; margin-bottom:8px; }
+.hero-sub{ color: var(--ink-soft); line-height:1.55; margin-bottom:16px; max-width:46ch; }
+.stat-row{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+@media (min-width:680px){ .stat-row{ justify-content:flex-start; } }
+.stat-pill{
+  background: var(--paper-card); border:1.5px solid var(--line); box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-sm); padding:12px 18px; display:flex; flex-direction:column; align-items:center; min-width:84px;
+}
+.stat-num{ font-family:var(--font-display); font-weight:700; font-size:1.3rem; color: var(--ink); }
+.stat-pill span:last-child{ font-size:.72rem; color: var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.03em; margin-top:2px; }
+
+.course-grid{ display:grid; grid-template-columns: 1fr; gap:16px; }
+@media (min-width:640px){ .course-grid{ grid-template-columns: repeat(2,1fr); } }
+@media (min-width:1000px){ .course-grid{ grid-template-columns: repeat(3,1fr); } }
+.course-card{ background: var(--paper-card); border:1.5px solid var(--line); border-radius: var(--radius); padding:18px; box-shadow: var(--shadow-sm); }
+.course-card-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px; }
+.course-card h3{ font-size:1rem; margin-bottom:4px; }
+.course-pct{ font-family:var(--font-display); font-weight:700; font-size:1.3rem; }
+.course-pct.good{ color: var(--sage-dark); }
+.course-pct.bad{ color: var(--red-pen); }
+.course-advice{ font-size:.86rem; color: var(--ink-soft); line-height:1.5; margin-bottom:14px; min-height:2.6em; }
+.course-actions{ display:flex; gap:8px; }
+.marked-note{ margin-top:10px; font-size:.78rem; color: var(--ink-soft); }
+
+.empty-state{ background: var(--paper-card); border:1.5px dashed var(--line); border-radius: var(--radius); padding:32px 20px; text-align:center; display:flex; flex-direction:column; gap:14px; align-items:center; color: var(--ink-soft); grid-column: 1/-1; }
+
+/* Records */
+.filter-row{ display:flex; flex-wrap:wrap; gap:10px; }
+.filter-row select, .filter-row input{ padding:9px 10px; border-radius: var(--radius-sm); border:1.5px solid var(--line); background: var(--paper); font-size:.86rem; }
+.add-record-form select, .add-record-form input{ flex:1; }
+
+.ledger{ display:flex; flex-direction:column; }
+.ledger-row{ display:grid; grid-template-columns: 1fr 1.4fr 1fr 1.3fr; gap:10px; align-items:center; padding:12px 4px; border-bottom:1px solid var(--line); font-size:.88rem; }
+.ledger-head{ font-weight:600; color: var(--ink-soft); font-size:.76rem; text-transform:uppercase; letter-spacing:.04em; border-bottom:1.5px solid var(--ink); }
+.ledger-date{ font-family: var(--font-mono); font-size:.82rem; }
+.ledger-actions{ display:flex; gap:8px; align-items:center; justify-content:flex-end; }
+.ledger-actions select{ padding:6px 8px; border-radius:8px; border:1.5px solid var(--line); font-size:.8rem; background: var(--paper); }
+
+.badge{ display:inline-block; padding:4px 10px; border-radius:999px; font-size:.76rem; font-weight:600; text-transform:capitalize; }
+.badge-present{ background: var(--sage-soft); color: var(--sage-dark); }
+.badge-absent{ background: var(--red-pen-soft); color: var(--red-pen); }
+.badge-cancelled{ background:#E7E3D4; color:#7A7259; }
+
+.icon-btn{ background: var(--paper); border:1.5px solid var(--line); border-radius:8px; padding:7px; display:flex; color: var(--ink-soft); }
+.icon-btn.danger:hover{ background: var(--red-pen-soft); color: var(--red-pen); border-color: var(--red-pen-soft); }
+
+/* Charts */
+.bar-chart, .trend-chart{ width:100%; height:auto; }
+.chart-label{ font-size:9px; fill: var(--ink-soft); font-family: var(--font-body); }
+.chart-val{ font-size:10px; fill: var(--ink); font-family: var(--font-mono); font-weight:600; }
+.chart-axis{ font-size:9px; fill: var(--ink-soft); }
+.chart-empty{ font-size:12px; fill: var(--ink-soft); }
+
+.two-col{ display:grid; grid-template-columns:1fr; gap:20px; }
+@media (min-width: 900px){ .two-col{ grid-template-columns: 1.1fr 1fr; } }
+
+.cal-nav{ display:grid; grid-template-columns: auto 1fr auto; align-items:center; }
+.cal-nav h2{ text-align:center; }
+.cal-weekdays{ display:grid; grid-template-columns: repeat(7,1fr); text-align:center; font-size:.72rem; color: var(--ink-soft); margin-bottom:6px; }
+.cal-grid{ display:grid; grid-template-columns: repeat(7,1fr); gap:5px; }
+.cal-cell{ aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:8px; font-size:.78rem; background: var(--paper); color: var(--ink-soft); }
+.cal-empty{ background:transparent; }
+.cal-present{ background: var(--sage); color:#fff; font-weight:600; }
+.cal-absent{ background: var(--red-pen); color:#fff; font-weight:600; }
+.cal-cancelled{ background:#E7E3D4; color:#7A7259; }
+.cal-legend{ display:flex; gap:16px; margin-top:14px; font-size:.78rem; color: var(--ink-soft); flex-wrap:wrap; }
+.cal-legend span{ display:flex; align-items:center; gap:6px; }
+.dot{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+.dot-present{ background: var(--sage); }
+.dot-absent{ background: var(--red-pen); }
+.dot-cancelled{ background:#C9C2A6; }
+
+.stamp-list{ display:flex; flex-direction:column; gap:10px; }
+.stamp-row{ display:grid; grid-template-columns: 1.3fr auto 1.2fr; gap:10px; align-items:baseline; padding:10px 0; border-bottom:1px dashed var(--line); }
+.stamp-row:last-child{ border-bottom:none; }
+.stamp-row-name{ font-weight:600; font-size:.9rem; }
+.stamp-row-val{ font-family: var(--font-display); font-weight:700; }
+.stamp-row-val.good{ color: var(--sage-dark); }
+.stamp-row-val.bad{ color: var(--red-pen); }
+.stamp-row-note{ font-size:.78rem; color: var(--ink-soft); text-align:right; }
+
+/* Profile */
+.profile-card{ display:flex; align-items:center; gap:16px; }
+.profile-avatar{ width:56px; height:56px; border-radius:50%; background: var(--primary-grad); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:1.1rem; flex-shrink:0; box-shadow: 0 4px 12px rgba(27,47,82,0.28); }
+.manage-list{ display:flex; flex-direction:column; }
+.manage-row{ display:grid; grid-template-columns: 1fr auto auto; gap:14px; align-items:center; padding:11px 0; border-bottom:1px solid var(--line); font-size:.92rem; }
+.manage-row:last-child{ border-bottom:none; }
+
+/* Toasts */
+.toast-root{ position:fixed; bottom:80px; left:0; right:0; display:flex; flex-direction:column; align-items:center; gap:8px; z-index:100; pointer-events:none; }
+@media (min-width:860px){ .toast-root{ bottom:24px; } }
+.toast{
+  background: var(--ink); color:#F5F3EA; padding:11px 18px; border-radius:999px; font-size:.86rem; font-weight:500;
+  box-shadow: var(--shadow); opacity:0; transform: translateY(10px); transition: opacity .25s ease, transform .25s ease;
+}
+.toast.show{ opacity:1; transform:none; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ===================== Attendify — attendance tracker ===================== */
+/* Data layer */
+const DB_KEY = 'rollcall_db_v1';
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function todayStr(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function fmtDate(iso){
+  const [y,m,d] = iso.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  return dt.toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric' });
+}
+
+function defaultDB(){
+  return { users: {}, session: null };
+}
+
+function loadDB(){
+  try{
+    const raw = localStorage.getItem(DB_KEY);
+    if(!raw) { const db = defaultDB(); saveDB(db); return db; }
+    return JSON.parse(raw);
+  }catch(e){
+    const db = defaultDB(); saveDB(db); return db;
+  }
+}
+
+function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+
+let DB = loadDB();
+
+/* ===================== Theme ===================== */
+const THEME_KEY = 'attendify_theme';
+function getTheme(){ return localStorage.getItem(THEME_KEY) || 'light'; }
+function setTheme(t){
+  localStorage.setItem(THEME_KEY, t);
+  document.documentElement.setAttribute('data-theme', t);
+}
+
+function currentUser(){
+  if(!DB.session) return null;
+  return DB.users[DB.session] || null;
+}
+
+function newUser(name, email, password, role){
+  return {
+    name, email, password, role,
+    target: 75,
+    onboarded: false,
+    courses: [],
+    records: [],
+    createdAt: todayStr()
+  };
+}
+
+/* Seed a demo account with a few weeks of history */
+function seedDemo(){
+  const email = 'demo@attendify.app';
+  const u = newUser('Demo Student', email, 'demo1234', 'student');
+  u.target = 75;
+  u.onboarded = true;
+  const courses = [
+    {id: uid(), name:'Data Structures'},
+    {id: uid(), name:'Digital Electronics'},
+    {id: uid(), name:'Linear Algebra'}
+  ];
+  u.courses = courses;
+  const records = [];
+  const now = new Date();
+  for(let i=45; i>=0; i--){
+    const d = new Date(now); d.setDate(d.getDate()-i);
+    if(d.getDay()===0) continue; // skip sundays
+    courses.forEach((c, idx) => {
+      if((d.getDate()+idx) % 3 === 0) return; // not every course meets every day
+      const roll = Math.random();
+      let status = 'present';
+      if(idx===1){ status = roll < 0.32 ? 'absent' : 'present'; } // weaker course
+      else { status = roll < 0.12 ? 'absent' : 'present'; }
+      if(roll > 0.95) status = 'cancelled';
+      const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      records.push({ id: uid(), courseId: c.id, date: iso, status });
+    });
+  }
+  u.records = records;
+  DB.users[email] = u;
+  saveDB(DB);
+  return email;
+}
+
+/* ===================== Attendance math ===================== */
+function computeStats(user, courseId){
+  const target = courseId ? (user.courses.find(c=>c.id===courseId)?.target ?? user.target) : user.target;
+  const recs = user.records.filter(r => courseId ? r.courseId===courseId : true);
+  const present = recs.filter(r=>r.status==='present').length;
+  const absent = recs.filter(r=>r.status==='absent').length;
+  const cancelled = recs.filter(r=>r.status==='cancelled').length;
+  const total = present + absent;
+  const pct = total ? (present/total*100) : null;
+  const t = target/100;
+  let needed = 0, canSkip = 0;
+  if(total>0){
+    if(pct < target){
+      const x = (t*total - present) / (1-t);
+      needed = Math.max(0, Math.ceil(x - 1e-9));
+    } else {
+      const x = (present / t) - total;
+      canSkip = Math.max(0, Math.floor(x + 1e-9));
+    }
+  }
+  return { target, present, absent, cancelled, total, pct, needed, canSkip };
+}
+
+function overallStats(user){ return computeStats(user, null); }
+
+/* ===================== Router ===================== */
+const PUBLIC_ROUTES = ['#/welcome', '#/login', '#/register', '#/forgot-password'];
+
+function currentRoute(){
+  return window.location.hash || '#/welcome';
+}
+
+function navigate(route){
+  if(window.location.hash === route){ render(); }
+  else { window.location.hash = route; }
+}
+
+function guardAndRoute(){
+  const user = currentUser();
+  let route = currentRoute();
+  if(!user){
+    if(!PUBLIC_ROUTES.includes(route.split('?')[0])) route = '#/welcome';
+    return route;
+  }
+  if(!user.onboarded){
+    return '#/get-started';
+  }
+  if(PUBLIC_ROUTES.includes(route) || route === '#/get-started'){
+    return '#/dashboard';
+  }
+  return route;
+}
+
+/* ===================== Utilities for UI ===================== */
+function toast(msg, kind){
+  const root = document.getElementById('toast-root');
+  const t = document.createElement('div');
+  t.className = 'toast' + (kind ? ' toast-'+kind : '');
+  t.textContent = msg;
+  root.appendChild(t);
+  requestAnimationFrame(()=> t.classList.add('show'));
+  setTimeout(()=>{
+    t.classList.remove('show');
+    setTimeout(()=> t.remove(), 300);
+  }, 2400);
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function initials(name){
+  return name.trim().split(/\s+/).slice(0,2).map(p=>p[0].toUpperCase()).join('');
+}
+
+/* ===================== SVG builders ===================== */
+function ringSVG(pct, opts){
+  opts = opts || {};
+  const size = opts.size || 148, stroke = opts.stroke || 14;
+  const good = opts.good !== false;
+  const val = pct==null ? 0 : Math.max(0, Math.min(100, pct));
+  const r = (size - stroke)/2;
+  const c = 2*Math.PI*r;
+  const offset = c * (1 - val/100);
+  const cx = size/2, cy = size/2;
+  let ticks = '';
+  for(let i=0;i<10;i++){
+    const a = (i*36 - 90) * Math.PI/180;
+    const x1 = cx + (r+stroke/2+3)*Math.cos(a), y1 = cy + (r+stroke/2+3)*Math.sin(a);
+    const x2 = cx + (r+stroke/2+7)*Math.cos(a), y2 = cy + (r+stroke/2+7)*Math.sin(a);
+    ticks += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="var(--line)" stroke-width="2"/>`;
+  }
+  const arcColor = pct==null ? 'var(--line)' : (good ? 'var(--sage)' : 'var(--red-pen)');
+  return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" class="ring-svg" role="img" aria-label="${val.toFixed(1)} percent">
+    ${ticks}
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--line)" stroke-width="${stroke}"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${arcColor}" stroke-width="${stroke}" stroke-linecap="round"
+      stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}" transform="rotate(-90 ${cx} ${cy})" class="ring-arc"/>
+  </svg>`;
+}
+
+function barChartSVG(items){
+  const w = 600, h = 240, padL = 36, padB = 30, padT = 16, gap = 28;
+  const chartW = w - padL - 16;
+  const bw = items.length ? Math.min(64, (chartW - gap*(items.length-1)) / items.length) : 0;
+  const scaleH = h - padT - padB;
+  let bars = '', labels = '';
+  items.forEach((it, i)=>{
+    const x = padL + i*(bw+gap);
+    const val = it.pct==null ? 0 : it.pct;
+    const barH = scaleH * (val/100);
+    const y = padT + (scaleH - barH);
+    const good = val >= it.target;
+    const targetY = padT + scaleH * (1 - it.target/100);
+    bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${barH.toFixed(1)}" rx="6" fill="${good?'var(--sage)':'var(--red-pen)'}"/>`;
+    bars += `<line x1="${x-4}" y1="${targetY.toFixed(1)}" x2="${(x+bw+4).toFixed(1)}" y2="${targetY.toFixed(1)}" stroke="var(--brass)" stroke-width="2" stroke-dasharray="4 3"/>`;
+    bars += `<text x="${(x+bw/2).toFixed(1)}" y="${(y-8).toFixed(1)}" text-anchor="middle" class="chart-val">${it.pct==null?'—':Math.round(val)+'%'}</text>`;
+    labels += `<text x="${(x+bw/2).toFixed(1)}" y="${h-10}" text-anchor="middle" class="chart-label">${escapeHtml(it.name.length>10? it.name.slice(0,9)+'…': it.name)}</text>`;
+  });
+  for(let g=0; g<=100; g+=25){
+    const gy = padT + scaleH*(1-g/100);
+    bars += `<line x1="${padL}" y1="${gy.toFixed(1)}" x2="${w-16}" y2="${gy.toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
+    bars += `<text x="${padL-8}" y="${(gy+3).toFixed(1)}" text-anchor="end" class="chart-axis">${g}</text>`;
+  }
+  return `<svg viewBox="0 0 ${w} ${h}" class="bar-chart" role="img" aria-label="Attendance by course">${bars}${labels}</svg>`;
+}
+
+function trendChartSVG(points){
+  const w = 600, h = 220, padL = 40, padR = 16, padT = 18, padB = 28;
+  if(points.length < 2){
+    return `<svg viewBox="0 0 ${w} ${h}" class="trend-chart"><text x="${w/2}" y="${h/2}" text-anchor="middle" class="chart-empty">Log a few more classes to see your trend.</text></svg>`;
+  }
+  const chartW = w - padL - padR, chartH = h - padT - padB;
+  const n = points.length;
+  const coords = points.map((p, i) => {
+    const x = padL + (chartW * i/(n-1));
+    const y = padT + chartH * (1 - p.pct/100);
+    return [x, y];
+  });
+  const path = coords.map((c,i)=> (i===0?'M':'L') + c[0].toFixed(1) + ' ' + c[1].toFixed(1)).join(' ');
+  const areaPath = path + ` L ${coords[n-1][0].toFixed(1)} ${padT+chartH} L ${coords[0][0].toFixed(1)} ${padT+chartH} Z`;
+  let grid = '';
+  for(let g=0; g<=100; g+=25){
+    const gy = padT + chartH*(1-g/100);
+    grid += `<line x1="${padL}" y1="${gy.toFixed(1)}" x2="${w-padR}" y2="${gy.toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
+    grid += `<text x="${padL-8}" y="${(gy+3).toFixed(1)}" text-anchor="end" class="chart-axis">${g}</text>`;
+  }
+  const last = coords[n-1];
+  return `<svg viewBox="0 0 ${w} ${h}" class="trend-chart" role="img" aria-label="Attendance trend over time">
+    ${grid}
+    <path d="${areaPath}" fill="var(--sage)" opacity="0.12" stroke="none"/>
+    <path d="${path}" fill="none" stroke="var(--sage-dark)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="4.5" fill="var(--sage-dark)"/>
+  </svg>`;
+}
+
+console.log('app.js parsed ok');
+
+/* ===================== Icons ===================== */
+const ICONS = {
+  logo: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="logoGradA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B2F52"/><stop offset="1" stop-color="#3B6EA5"/></linearGradient><linearGradient id="logoGradSq" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3B6EA5"/><stop offset="1" stop-color="#8FB6DE"/></linearGradient><linearGradient id="logoGradBadge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2F5A8C"/><stop offset="1" stop-color="#5B93C9"/></linearGradient></defs><path d="M50 8 L82 90 L68 90 L61 74 L39 74 L32 90 L18 90 Z" fill="url(#logoGradA)"/><path d="M20 60 C40 46, 55 42, 90 24 L90 32 C58 45, 42 51, 26 66 Z" fill="#fff" opacity="0.92"/><rect x="76" y="20" width="9" height="9" rx="2" fill="url(#logoGradSq)" transform="rotate(-12 80 24)"/><rect x="87" y="12" width="7" height="7" rx="1.6" fill="url(#logoGradSq)" opacity="0.85" transform="rotate(-12 90 15)"/><rect x="95" y="6" width="5" height="5" rx="1.2" fill="url(#logoGradSq)" opacity="0.7" transform="rotate(-12 97 8)"/><g class="logo-badge"><circle cx="22" cy="84" r="15" fill="url(#logoGradBadge)" stroke="#fff" stroke-width="2.5"/><circle cx="17.5" cy="80" r="3.6" fill="#fff"/><circle cx="26.5" cy="80" r="3.6" fill="#fff"/><path d="M11 91c1.5-4.5 6-6.8 11-6.8s9.5 2.3 11 6.8" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none"/></g></svg>`,
+  sun: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v3M12 18.5v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2.5 12h3M18.5 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  moon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M20 14.5A8.5 8.5 0 119.5 4a7 7 0 0010.5 10.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+  dashboard: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none"><rect x="3" y="3" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="3" width="8" height="5" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="10" width="8" height="11" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="13" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.8"/></svg>`,
+  records: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none"><rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  analytics: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M4 20V10M11 20V4M18 20v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
+  profile: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none"><circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20c1.6-3.8 4.6-5.6 7.5-5.6s5.9 1.8 7.5 5.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  plus: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`,
+  check: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  x: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`,
+  chevronL: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  chevronR: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  logout: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M9 4H6a2 2 0 00-2 2v12a2 2 0 002 2h3M16 16l4-4-4-4M20 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  trash: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M5 7h14M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-9 0l1 12a2 2 0 002 2h4a2 2 0 002-2l1-12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+};
+
+/* ===================== App shell ===================== */
+const NAV_ITEMS = [
+  {route:'#/dashboard', label:'Dashboard', icon:'dashboard'},
+  {route:'#/records', label:'Records', icon:'records'},
+  {route:'#/analytics', label:'Analytics', icon:'analytics'},
+  {route:'#/profile', label:'Profile', icon:'profile'},
+];
+
+function appShell(route, title, content){
+  const user = currentUser();
+  const navLinks = NAV_ITEMS.map(n => `
+    <a href="${n.route}" class="nav-link ${route===n.route?'active':''}" data-nav>
+      <span class="nav-icon">${ICONS[n.icon]}</span><span>${n.label}</span>
+    </a>`).join('');
+  const tabLinks = NAV_ITEMS.map(n => `
+    <a href="${n.route}" class="tab-link ${route===n.route?'active':''}" data-nav>
+      <span class="nav-icon">${ICONS[n.icon]}</span><span class="tab-label">${n.label}</span>
+    </a>`).join('');
+  const theme = getTheme();
+  return `
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">${ICONS.logo}</span><span class="brand-name">Attendify</span></div>
+      <h1 class="topbar-title">${title}</h1>
+      <button class="theme-btn" data-action="toggle-theme" aria-label="Toggle dark mode">${theme==='dark'?ICONS.sun:ICONS.moon}</button>
+      <div class="user-menu">
+        <button class="avatar-btn" data-action="toggle-menu" aria-haspopup="true">${initials(user.name)}</button>
+        <div class="menu-pop" id="user-menu-pop" hidden>
+          <div class="menu-name">${escapeHtml(user.name)}</div>
+          <div class="menu-email">${escapeHtml(user.email)}</div>
+          <a href="#/profile" class="menu-item" data-nav>Profile</a>
+          <button class="menu-item danger" data-action="logout">${ICONS.logout} Sign out</button>
+        </div>
+      </div>
+    </header>
+    <div class="shell-body">
+      <nav class="sidenav">
+        <div class="sidenav-brand"><span class="brand-mark">${ICONS.logo}</span><span class="sidenav-brand-name">Attendify</span></div>
+        ${navLinks}
+        <div class="sidenav-spacer"></div>
+        <button class="sidenav-logout" data-action="logout">${ICONS.logout} Sign out</button>
+      </nav>
+      <main class="view" id="view-main">${content}</main>
+    </div>
+    <nav class="tabbar">${tabLinks}</nav>
+  </div>
+  <div id="toast-root" class="toast-root"></div>`;
+}
+
+/* ===================== Auth pages ===================== */
+function authFrame(inner){
+  const theme = getTheme();
+  return `
+  <button class="theme-btn floating-theme-btn" data-action="toggle-theme" aria-label="Toggle dark mode">${theme==='dark'?ICONS.sun:ICONS.moon}</button>
+  <div class="auth-wrap">
+    <aside class="auth-side">
+      <div class="auth-side-inner">
+        <a href="#/welcome" data-nav class="auth-brand">${ICONS.logo}<span>Attendify</span></a>
+        <p class="auth-sub">Track attendance across every course, calculate your percentage, and see exactly what to attend next to stay on target.</p>
+      </div>
+      <div class="ruled"></div>
+    </aside>
+    <section class="auth-form-side">
+      <div class="auth-card">${inner}</div>
+    </section>
+  </div>`;
+}
+
+/* ===================== Welcome / landing ===================== */
+function welcomeView(){
+  const theme = getTheme();
+  const features = [
+    {title:'Attendance Calculator', desc:'Calculate your attendance percentage instantly and accurately.'},
+    {title:'Analytics Dashboard', desc:'View attendance trends, charts, and insights over time.'},
+    {title:'Attendance Records', desc:'Store and manage every logged class in one ledger.'},
+    {title:'Student Profile', desc:'Maintain your details, target, and course list.'},
+  ];
+  return `
+  <button class="theme-btn floating-theme-btn" data-action="toggle-theme" aria-label="Toggle dark mode">${theme==='dark'?ICONS.sun:ICONS.moon}</button>
+  <div class="welcome-page">
+    <div class="welcome-logo">${ICONS.logo}</div>
+    <h1 class="welcome-title">Attendify</h1>
+    <p class="welcome-sub">Smart attendance calculator &amp; analytics system</p>
+    <div class="feature-grid">
+      ${features.map(f => `
+        <div class="feature-card">
+          <h3>${f.title}</h3>
+          <p>${f.desc}</p>
+        </div>`).join('')}
+    </div>
+    <a href="#/register" data-nav class="btn btn-primary welcome-cta">Get Started ${ICONS.chevronR}</a>
+    <p class="welcome-foot">Already have an account? <a href="#/login" data-nav>Sign in</a></p>
+  </div>`;
+}
+
+function loginView(){
+  return authFrame(`
+    <h2 class="form-title">Welcome back</h2>
+    <p class="form-sub">Sign in to pick up your attendance ledger.</p>
+    <form data-form="login" class="form" novalidate>
+      <label class="field">
+        <span>Email</span>
+        <input type="email" name="email" required placeholder="you@school.edu" autocomplete="email"/>
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input type="password" name="password" required placeholder="••••••••" autocomplete="current-password"/>
+      </label>
+      <div class="form-links-row"><button type="button" class="link-inline" data-action="start-forgot">Forgot password?</button></div>
+      <div class="form-error" id="login-error" hidden></div>
+      <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+      <button class="btn btn-ghost btn-block" type="button" data-action="try-demo">Try the demo account</button>
+    </form>
+    <p class="form-foot">New here? <a href="#/register" data-nav>Create an account</a></p>
+    <p class="form-note">This is a local demo — your data stays only in this browser.</p>
+  `);
+}
+
+/* ===================== Forgot password (OTP) ===================== */
+let fpStep = 1;
+let fpEmail = '';
+let fpOtp = '';
+let fpError = '';
+
+function genOtp(){ return String(Math.floor(100000 + Math.random()*900000)); }
+
+function forgotPasswordView(){
+  if(fpStep===2 && !fpOtp) fpStep = 1;
+  if(fpStep===3 && !fpEmail) fpStep = 1;
+  let body = '';
+
+  if(fpStep===1){
+    body = `
+      <h2 class="form-title">Forgot password</h2>
+      <p class="form-sub">Enter your account email and we'll send a one-time code.</p>
+      <form data-form="fp-request" class="form" novalidate>
+        <label class="field">
+          <span>Email</span>
+          <input type="email" name="email" required placeholder="you@school.edu" autocomplete="email" value="${escapeHtml(fpEmail)}"/>
+        </label>
+        <div class="form-error" id="fp-error" ${fpError?'':'hidden'}>${escapeHtml(fpError)}</div>
+        <button class="btn btn-primary btn-block" type="submit">Send code</button>
+      </form>
+      <p class="form-foot"><a href="#/login" data-nav>Back to sign in</a></p>`;
+  } else if(fpStep===2){
+    body = `
+      <h2 class="form-title">Enter the code</h2>
+      <p class="form-sub">We sent a 6-digit code to <strong>${escapeHtml(fpEmail)}</strong>.</p>
+      <div class="otp-demo-banner">This is a local demo — no real email is sent. Your code is <strong>${fpOtp}</strong></div>
+      <form data-form="fp-verify" class="form" novalidate>
+        <label class="field">
+          <span>6-digit code</span>
+          <input type="text" name="otp" required maxlength="6" pattern="[0-9]{6}" inputmode="numeric" placeholder="••••••" autocomplete="one-time-code"/>
+        </label>
+        <div class="form-error" id="fp-error" ${fpError?'':'hidden'}>${escapeHtml(fpError)}</div>
+        <button class="btn btn-primary btn-block" type="submit">Verify code</button>
+        <button class="btn btn-ghost btn-block" type="button" data-action="fp-resend">Resend code</button>
+      </form>
+      <p class="form-foot"><a href="#/login" data-nav>Back to sign in</a></p>`;
+  } else if(fpStep===3){
+    body = `
+      <h2 class="form-title">Set a new password</h2>
+      <p class="form-sub">Choose a new password for ${escapeHtml(fpEmail)}.</p>
+      <form data-form="fp-reset" class="form" novalidate>
+        <label class="field">
+          <span>New password</span>
+          <input type="password" name="password" required minlength="6" placeholder="At least 6 characters" autocomplete="new-password"/>
+        </label>
+        <label class="field">
+          <span>Confirm password</span>
+          <input type="password" name="confirm" required minlength="6" placeholder="Re-enter password" autocomplete="new-password"/>
+        </label>
+        <div class="form-error" id="fp-error" ${fpError?'':'hidden'}>${escapeHtml(fpError)}</div>
+        <button class="btn btn-primary btn-block" type="submit">Update password</button>
+      </form>`;
+  } else {
+    body = `
+      <h2 class="form-title">Password updated</h2>
+      <p class="form-sub">You can now sign in with your new password.</p>
+      <a href="#/login" data-nav class="btn btn-primary btn-block">Back to sign in</a>`;
+  }
+  return authFrame(body);
+}
+
+function registerView(){
+  return authFrame(`
+    <h2 class="form-title">Create your account</h2>
+    <p class="form-sub">Set up your ledger in under a minute.</p>
+    <form data-form="register" class="form" novalidate>
+      <label class="field">
+        <span>Full name</span>
+        <input type="text" name="name" required placeholder="Full name" autocomplete="name"/>
+      </label>
+      <label class="field">
+        <span>Email</span>
+        <input type="email" name="email" required placeholder="you@school.edu" autocomplete="email"/>
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input type="password" name="password" required minlength="6" placeholder="At least 6 characters" autocomplete="new-password"/>
+      </label>
+      <fieldset class="field">
+        <span>I am a</span>
+        <div class="segmented">
+          <label class="seg-opt"><input type="radio" name="role" value="student" checked/><span>Student</span></label>
+          <label class="seg-opt"><input type="radio" name="role" value="teacher"/><span>Teacher</span></label>
+        </div>
+      </fieldset>
+      <div class="form-error" id="register-error" hidden></div>
+      <button class="btn btn-primary btn-block" type="submit">Create account</button>
+    </form>
+    <p class="form-foot">Already have an account? <a href="#/login" data-nav>Sign in</a></p>
+  `);
+}
+
+/* ===================== Get started (onboarding) ===================== */
+let gsStep = 1;
+let gsCourses = [];
+let gsTarget = 75;
+
+function getStartedView(){
+  const stepper = `
+    <div class="stepper">
+      <div class="step ${gsStep>=1?'done':''} ${gsStep===1?'active':''}"><span>1</span>Target</div>
+      <div class="step-line"></div>
+      <div class="step ${gsStep>=2?'done':''} ${gsStep===2?'active':''}"><span>2</span>Courses</div>
+    </div>`;
+  let body = '';
+  if(gsStep===1){
+    body = `
+      <h2 class="form-title">Set your target</h2>
+      <p class="form-sub">Most institutions require 75%. You can change this any time in Profile.</p>
+      <div class="target-picker">
+        <div class="target-value">${gsTarget}%</div>
+        <input type="range" min="50" max="100" step="1" value="${gsTarget}" data-input="gs-target" class="slider"/>
+        <div class="slider-scale"><span>50%</span><span>75%</span><span>100%</span></div>
+      </div>
+      <button class="btn btn-primary btn-block" data-action="gs-next">Continue</button>`;
+  } else {
+    body = `
+      <h2 class="form-title">Add your courses</h2>
+      <p class="form-sub">Add each class or subject you want to track. You can edit this list later.</p>
+      <form data-form="gs-add-course" class="inline-form">
+        <input type="text" name="course" placeholder="e.g. Data Structures" required/>
+        <button class="btn btn-primary" type="submit">${ICONS.plus} Add</button>
+      </form>
+      <ul class="chip-list">
+        ${gsCourses.map(c => `<li class="chip">${escapeHtml(c)} <button data-action="gs-remove-course" data-name="${escapeHtml(c)}" aria-label="Remove ${escapeHtml(c)}">${ICONS.x}</button></li>`).join('') || '<li class="chip-empty">No courses added yet.</li>'}
+      </ul>
+      <div class="form-row">
+        <button class="btn btn-ghost" data-action="gs-back">${ICONS.chevronL} Back</button>
+        <button class="btn btn-primary" data-action="gs-finish">Start tracking</button>
+      </div>`;
+  }
+  return authFrame(`${stepper}${body}`);
+}
+
+/* ===================== Dashboard ===================== */
+function dashboardView(){
+  const user = currentUser();
+  const stats = overallStats(user);
+  const good = stats.pct==null || stats.pct >= stats.target;
+  const status = stats.total===0 ? 'Not started' : (good ? 'On track' : 'At risk');
+  const today = todayStr();
+
+  const courseCards = user.courses.map(c => {
+    const cs = computeStats(user, c.id);
+    const cgood = cs.pct==null || cs.pct >= cs.target;
+    const markedToday = user.records.find(r => r.courseId===c.id && r.date===today);
+    const advice = cs.total===0 ? 'Mark your first class below.'
+      : cgood ? (cs.canSkip>0 ? `Can skip <strong>${cs.canSkip}</strong> and stay above ${cs.target}%.` : `Right at target — don't miss the next one.`)
+      : `Attend <strong>${cs.needed}</strong> in a row to reach ${cs.target}%.`;
+    return `
+    <div class="course-card">
+      <div class="course-card-top">
+        <div>
+          <h3>${escapeHtml(c.name)}</h3>
+          <div class="course-pct ${cgood?'good':'bad'}">${cs.pct==null?'—':cs.pct.toFixed(1)+'%'}</div>
+        </div>
+        <div class="mini-ring">${ringSVG(cs.pct, {size:64, stroke:7, good:cgood})}</div>
+      </div>
+      <p class="course-advice">${advice}</p>
+      <div class="course-actions">
+        <button class="btn btn-sm btn-present ${markedToday?.status==='present'?'is-active':''}" data-action="quick-mark" data-course="${c.id}" data-status="present">${ICONS.check} Present</button>
+        <button class="btn btn-sm btn-absent ${markedToday?.status==='absent'?'is-active':''}" data-action="quick-mark" data-course="${c.id}" data-status="absent">${ICONS.x} Absent</button>
+      </div>
+      ${markedToday ? `<div class="marked-note">Marked ${markedToday.status} for today · <button class="link-btn" data-action="unmark" data-record="${markedToday.id}">undo</button></div>` : ''}
+    </div>`;
+  }).join('') || `<div class="empty-state">
+      <p>No courses yet. Add your first course to start logging attendance.</p>
+      <a href="#/profile" class="btn btn-primary" data-nav>Add a course</a>
+    </div>`;
+
+  return appShell('#/dashboard', 'Dashboard', `
+    <section class="hero-card">
+      <div class="hero-ring">
+        ${ringSVG(stats.pct, {size:168, stroke:16, good})}
+        <div class="ring-center">
+          <div class="ring-pct">${stats.pct==null?'—':stats.pct.toFixed(1)+'%'}</div>
+          <div class="ring-label">overall</div>
+        </div>
+        <div class="stamp stamp-sm ${good?'':'stamp-bad'}">${status}</div>
+      </div>
+      <div class="hero-stats">
+        <h2>Good ${greeting()}, ${escapeHtml(user.name.split(' ')[0])}.</h2>
+        <p class="hero-sub">${stats.total===0 ? 'Mark today\'s classes to start your ledger.' : (good ? (stats.canSkip>0 ? `You can miss ${stats.canSkip} more ${stats.canSkip===1?'class':'classes'} and stay above ${stats.target}%.` : `You're right on your ${stats.target}% target — keep it up.`) : `Attend your next ${stats.needed} ${stats.needed===1?'class':'classes'} in a row to reach ${stats.target}%.`)}</p>
+        <div class="stat-row">
+          <div class="stat-pill"><span class="stat-num">${stats.present}</span><span>Present</span></div>
+          <div class="stat-pill"><span class="stat-num">${stats.absent}</span><span>Absent</span></div>
+          <div class="stat-pill"><span class="stat-num">${stats.total}</span><span>Total</span></div>
+          <div class="stat-pill"><span class="stat-num">${stats.target}%</span><span>Target</span></div>
+        </div>
+      </div>
+    </section>
+    <div class="section-head"><h2>Your courses</h2><a href="#/records" data-nav class="link-btn">View records →</a></div>
+    <div class="course-grid">${courseCards}</div>
+  `);
+}
+
+function greeting(){
+  const h = new Date().getHours();
+  if(h<12) return 'morning'; if(h<17) return 'afternoon'; return 'evening';
+}
+
+
+/* ===================== Records ===================== */
+let recFilter = { course:'all', status:'all', from:'', to:'' };
+
+function recordsView(){
+  const user = currentUser();
+  let recs = user.records.slice().sort((a,b)=> b.date.localeCompare(a.date));
+  if(recFilter.course!=='all') recs = recs.filter(r=>r.courseId===recFilter.course);
+  if(recFilter.status!=='all') recs = recs.filter(r=>r.status===recFilter.status);
+  if(recFilter.from) recs = recs.filter(r=>r.date>=recFilter.from);
+  if(recFilter.to) recs = recs.filter(r=>r.date<=recFilter.to);
+
+  const courseOpts = user.courses.map(c=>`<option value="${c.id}" ${recFilter.course===c.id?'selected':''}>${escapeHtml(c.name)}</option>`).join('');
+  const courseName = id => user.courses.find(c=>c.id===id)?.name || 'Unknown course';
+
+  const rows = recs.map(r => `
+    <div class="ledger-row">
+      <div class="ledger-date">${fmtDate(r.date)}</div>
+      <div class="ledger-course">${escapeHtml(courseName(r.courseId))}</div>
+      <div class="ledger-status">
+        <span class="badge badge-${r.status}">${r.status}</span>
+      </div>
+      <div class="ledger-actions">
+        <select data-action="edit-status" data-record="${r.id}" aria-label="Change status">
+          <option value="present" ${r.status==='present'?'selected':''}>Present</option>
+          <option value="absent" ${r.status==='absent'?'selected':''}>Absent</option>
+          <option value="cancelled" ${r.status==='cancelled'?'selected':''}>Cancelled</option>
+        </select>
+        <button class="icon-btn danger" data-action="delete-record" data-record="${r.id}" aria-label="Delete entry">${ICONS.trash}</button>
+      </div>
+    </div>`).join('') || `<div class="empty-state"><p>No entries match these filters.</p></div>`;
+
+  const canAdd = user.courses.length>0;
+
+  return appShell('#/records', 'Records', `
+    <section class="panel">
+      <div class="panel-head"><h2>Add an entry</h2></div>
+      ${canAdd ? `
+      <form data-form="add-record" class="inline-form add-record-form">
+        <select name="courseId" required>${user.courses.map(c=>`<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('')}</select>
+        <input type="date" name="date" value="${todayStr()}" max="${todayStr()}" required/>
+        <select name="status" required>
+          <option value="present">Present</option>
+          <option value="absent">Absent</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <button class="btn btn-primary" type="submit">${ICONS.plus} Log entry</button>
+      </form>` : `<p class="form-sub">Add a course in your <a href="#/profile" data-nav>profile</a> before logging attendance.</p>`}
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Filter</h2></div>
+      <div class="filter-row">
+        <select data-action="filter-course" aria-label="Filter by course">
+          <option value="all">All courses</option>${courseOpts}
+        </select>
+        <select data-action="filter-status" aria-label="Filter by status">
+          <option value="all" ${recFilter.status==='all'?'selected':''}>All statuses</option>
+          <option value="present" ${recFilter.status==='present'?'selected':''}>Present</option>
+          <option value="absent" ${recFilter.status==='absent'?'selected':''}>Absent</option>
+          <option value="cancelled" ${recFilter.status==='cancelled'?'selected':''}>Cancelled</option>
+        </select>
+        <input type="date" data-action="filter-from" value="${recFilter.from}" aria-label="From date"/>
+        <input type="date" data-action="filter-to" value="${recFilter.to}" aria-label="To date"/>
+        ${(recFilter.course!=='all'||recFilter.status!=='all'||recFilter.from||recFilter.to) ? `<button class="btn btn-ghost btn-sm" data-action="clear-filters">Clear</button>` : ''}
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Ledger</h2><span class="muted">${recs.length} ${recs.length===1?'entry':'entries'}</span></div>
+      <div class="ledger">
+        <div class="ledger-row ledger-head">
+          <div>Date</div><div>Course</div><div>Status</div><div>Actions</div>
+        </div>
+        ${rows}
+      </div>
+    </section>
+  `);
+}
+
+/* ===================== Analytics ===================== */
+let calState = (()=>{ const d=new Date(); return {year:d.getFullYear(), month:d.getMonth()}; })();
+
+function buildTrendPoints(user){
+  const recs = user.records.filter(r=>r.status!=='cancelled').slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const byDate = {};
+  recs.forEach(r=>{ byDate[r.date] = byDate[r.date] || {p:0,t:0}; byDate[r.date].t++; if(r.status==='present') byDate[r.date].p++; });
+  const dates = Object.keys(byDate).sort();
+  let p=0,t=0; const points=[];
+  dates.forEach(d=>{ p+=byDate[d].p; t+=byDate[d].t; points.push({date:d, pct: t? (p/t*100):0}); });
+  return points;
+}
+
+function analyticsView(){
+  const user = currentUser();
+  const stats = overallStats(user);
+  const courseItems = user.courses.map(c => { const cs = computeStats(user, c.id); return {name:c.name, pct:cs.pct, target:cs.target}; });
+  const trend = buildTrendPoints(user);
+
+  const y = calState.year, m = calState.month;
+  const first = new Date(y,m,1);
+  const startDay = first.getDay();
+  const daysInMonth = new Date(y,m+1,0).getDate();
+  const monthLabel = first.toLocaleDateString(undefined,{month:'long', year:'numeric'});
+  const byDate = {};
+  user.records.forEach(r=>{ byDate[r.date] = byDate[r.date] || []; byDate[r.date].push(r.status); });
+  let cells = '';
+  for(let i=0;i<startDay;i++) cells += `<div class="cal-cell cal-empty"></div>`;
+  for(let d=1; d<=daysInMonth; d++){
+    const iso = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const list = byDate[iso] || [];
+    let cls = 'cal-none';
+    if(list.includes('absent')) cls = 'cal-absent';
+    else if(list.includes('present')) cls = 'cal-present';
+    else if(list.length) cls = 'cal-cancelled';
+    cells += `<div class="cal-cell ${cls}" title="${iso}">${d}</div>`;
+  }
+
+  const ledgerStamps = user.courses.map(c=>{
+    const cs = computeStats(user, c.id);
+    const good = cs.pct==null || cs.pct>=cs.target;
+    return `<div class="stamp-row">
+      <div class="stamp-row-name">${escapeHtml(c.name)}</div>
+      <div class="stamp-row-val ${good?'good':'bad'}">${cs.pct==null?'No data': cs.pct.toFixed(1)+'%'}</div>
+      <div class="stamp-row-note">${cs.total===0?'—': good ? (cs.canSkip>0? `${cs.canSkip} to spare` : 'at target') : `need ${cs.needed} in a row`}</div>
+    </div>`;
+  }).join('') || `<p class="muted">Add courses to see the breakdown.</p>`;
+
+  return appShell('#/analytics', 'Analytics', `
+    <section class="panel">
+      <div class="panel-head"><h2>Attendance by course</h2></div>
+      ${user.courses.length ? barChartSVG(courseItems) : `<p class="muted">Add a course to compare attendance.</p>`}
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Trend over time</h2><span class="muted">Overall %</span></div>
+      ${trendChartSVG(trend)}
+    </section>
+
+    <div class="two-col">
+      <section class="panel">
+        <div class="panel-head cal-nav">
+          <button class="icon-btn" data-action="cal-prev" aria-label="Previous month">${ICONS.chevronL}</button>
+          <h2>${monthLabel}</h2>
+          <button class="icon-btn" data-action="cal-next" aria-label="Next month">${ICONS.chevronR}</button>
+        </div>
+        <div class="cal-weekdays"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+        <div class="cal-grid">${cells}</div>
+        <div class="cal-legend">
+          <span><i class="dot dot-present"></i>Present</span>
+          <span><i class="dot dot-absent"></i>Absent</span>
+          <span><i class="dot dot-cancelled"></i>Cancelled</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h2>What you need next</h2></div>
+        <div class="stamp-list">${ledgerStamps}</div>
+      </section>
+    </div>
+  `);
+}
+
+/* ===================== Profile ===================== */
+function profileView(){
+  const user = currentUser();
+  const courseRows = user.courses.map(c => {
+    const cs = computeStats(user, c.id);
+    return `<li class="manage-row">
+      <span>${escapeHtml(c.name)}</span>
+      <span class="muted">${cs.pct==null?'no data':cs.pct.toFixed(1)+'%'}</span>
+      <button class="icon-btn danger" data-action="delete-course" data-course="${c.id}" aria-label="Remove ${escapeHtml(c.name)}">${ICONS.trash}</button>
+    </li>`;
+  }).join('') || `<li class="muted">No courses yet.</li>`;
+
+  return appShell('#/profile', 'Profile', `
+    <section class="panel profile-card">
+      <div class="profile-avatar">${initials(user.name)}</div>
+      <div>
+        <h2>${escapeHtml(user.name)}</h2>
+        <p class="muted">${escapeHtml(user.email)} · ${user.role==='teacher'?'Teacher':'Student'}</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Your details</h2></div>
+      <form data-form="update-profile" class="form">
+        <label class="field">
+          <span>Full name</span>
+          <input type="text" name="name" value="${escapeHtml(user.name)}" required/>
+        </label>
+        <button class="btn btn-primary" type="submit">Save changes</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Attendance target</h2></div>
+      <div class="target-picker">
+        <div class="target-value">${user.target}%</div>
+        <input type="range" min="50" max="100" step="1" value="${user.target}" data-input="profile-target" class="slider"/>
+        <div class="slider-scale"><span>50%</span><span>75%</span><span>100%</span></div>
+      </div>
+      <button class="btn btn-primary" data-action="save-target">Save target</button>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Courses</h2></div>
+      <form data-form="add-course" class="inline-form">
+        <input type="text" name="course" placeholder="Add a course" required/>
+        <button class="btn btn-primary" type="submit">${ICONS.plus} Add</button>
+      </form>
+      <ul class="manage-list">${courseRows}</ul>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Account</h2></div>
+      <button class="btn btn-ghost" data-action="logout">${ICONS.logout} Sign out</button>
+    </section>
+  `);
+}
+
+/* ===================== Render / init ===================== */
+function render(){
+  const route = guardAndRoute();
+  if(('#'+window.location.hash.replace(/^#/,'')) !== route && window.location.hash !== route){
+    if(window.location.hash !== route){ window.location.hash = route; return; }
+  }
+  const app = document.getElementById('app');
+  let html = '';
+  switch(route.split('?')[0]){
+    case '#/welcome': html = welcomeView(); break;
+    case '#/login': html = loginView(); break;
+    case '#/forgot-password': html = forgotPasswordView(); break;
+    case '#/register': html = registerView(); break;
+    case '#/get-started': gsTarget = currentUser()?.target || 75; html = getStartedView(); break;
+    case '#/dashboard': html = dashboardView(); break;
+    case '#/records': html = recordsView(); break;
+    case '#/analytics': html = analyticsView(); break;
+    case '#/profile': html = profileView(); break;
+    default: html = welcomeView();
+  }
+  app.innerHTML = html;
+  app.classList.remove('fade-in'); void app.offsetWidth; app.classList.add('fade-in');
+  window.scrollTo(0,0);
+}
+
+function requireUserOr(fn){
+  const u = currentUser();
+  if(!u){ navigate('#/login'); return null; }
+  return fn(u);
+}
+
+/* ---- Event delegation ---- */
+document.addEventListener('click', (e) => {
+  const navEl = e.target.closest('[data-nav]');
+  if(navEl){
+    e.preventDefault();
+    navigate(navEl.getAttribute('href'));
+    return;
+  }
+  const actEl = e.target.closest('[data-action]');
+  if(!actEl) return;
+  const action = actEl.getAttribute('data-action');
+
+  if(action==='toggle-theme'){
+    setTheme(getTheme()==='dark' ? 'light' : 'dark');
+    render();
+    return;
+  }
+
+  if(action==='toggle-menu'){
+    const pop = document.getElementById('user-menu-pop');
+    if(pop) pop.hidden = !pop.hidden;
+    return;
+  }
+
+  if(action==='logout'){
+    DB.session = null; saveDB(DB);
+    navigate('#/login');
+    return;
+  }
+
+  if(action==='try-demo'){
+    const email = seedDemo();
+    DB.session = email; saveDB(DB);
+    toast('Loaded the demo account');
+    navigate('#/dashboard');
+    return;
+  }
+
+  if(action==='start-forgot'){
+    fpStep = 1; fpEmail = ''; fpOtp = ''; fpError = '';
+    navigate('#/forgot-password');
+    return;
+  }
+
+  if(action==='fp-resend'){
+    fpOtp = genOtp();
+    toast('New code sent (demo)');
+    render();
+    return;
+  }
+
+  if(action==='gs-next'){ gsStep = 2; render(); return; }
+  if(action==='gs-back'){ gsStep = 1; render(); return; }
+  if(action==='gs-remove-course'){
+    const name = actEl.getAttribute('data-name');
+    gsCourses = gsCourses.filter(c=>c!==name);
+    render(); return;
+  }
+  if(action==='gs-finish'){
+    requireUserOr(u => {
+      u.target = gsTarget;
+      u.courses = gsCourses.map(name => ({id: uid(), name}));
+      u.onboarded = true;
+      saveDB(DB);
+      gsStep = 1; gsCourses = [];
+      toast('You\'re all set — welcome to Attendify');
+      navigate('#/dashboard');
+    });
+    return;
+  }
+
+  if(action==='quick-mark'){
+    requireUserOr(u => {
+      const courseId = actEl.getAttribute('data-course');
+      const status = actEl.getAttribute('data-status');
+      const today = todayStr();
+      const existing = u.records.find(r=>r.courseId===courseId && r.date===today);
+      if(existing){ existing.status = status; }
+      else { u.records.push({id: uid(), courseId, date: today, status}); }
+      saveDB(DB);
+      toast(`Marked ${status} for today`);
+      render();
+    });
+    return;
+  }
+
+  if(action==='unmark'){
+    requireUserOr(u => {
+      const id = actEl.getAttribute('data-record');
+      u.records = u.records.filter(r=>r.id!==id);
+      saveDB(DB);
+      render();
+    });
+    return;
+  }
+
+  if(action==='delete-record'){
+    requireUserOr(u => {
+      const id = actEl.getAttribute('data-record');
+      if(!confirm('Delete this attendance entry?')) return;
+      u.records = u.records.filter(r=>r.id!==id);
+      saveDB(DB);
+      toast('Entry deleted');
+      render();
+    });
+    return;
+  }
+
+  if(action==='delete-course'){
+    requireUserOr(u => {
+      const id = actEl.getAttribute('data-course');
+      const course = u.courses.find(c=>c.id===id);
+      if(!confirm(`Remove "${course?.name}" and all its attendance entries?`)) return;
+      u.courses = u.courses.filter(c=>c.id!==id);
+      u.records = u.records.filter(r=>r.courseId!==id);
+      saveDB(DB);
+      toast('Course removed');
+      render();
+    });
+    return;
+  }
+
+  if(action==='save-target'){
+    requireUserOr(u => {
+      u.target = gsTarget || u.target;
+      const slider = document.querySelector('[data-input="profile-target"]');
+      if(slider) u.target = Number(slider.value);
+      saveDB(DB);
+      toast('Target saved');
+      render();
+    });
+    return;
+  }
+
+  if(action==='clear-filters'){
+    recFilter = {course:'all', status:'all', from:'', to:''};
+    render(); return;
+  }
+
+  if(action==='cal-prev'){
+    calState.month--; if(calState.month<0){ calState.month=11; calState.year--; }
+    render(); return;
+  }
+  if(action==='cal-next'){
+    calState.month++; if(calState.month>11){ calState.month=0; calState.year++; }
+    render(); return;
+  }
+});
+
+document.addEventListener('change', (e) => {
+  if(e.target.matches('[data-input="gs-target"]')){
+    gsTarget = Number(e.target.value);
+    render();
+    return;
+  }
+  if(e.target.matches('[data-input="profile-target"]')){
+    const val = document.querySelector('.target-value');
+    if(val) val.textContent = e.target.value + '%';
+    return;
+  }
+  if(e.target.matches('[data-action="edit-status"]')){
+    requireUserOr(u => {
+      const id = e.target.getAttribute('data-record');
+      const rec = u.records.find(r=>r.id===id);
+      if(rec){ rec.status = e.target.value; saveDB(DB); toast('Entry updated'); render(); }
+    });
+    return;
+  }
+  if(e.target.matches('[data-action="filter-course"]')){ recFilter.course = e.target.value; render(); return; }
+  if(e.target.matches('[data-action="filter-status"]')){ recFilter.status = e.target.value; render(); return; }
+  if(e.target.matches('[data-action="filter-from"]')){ recFilter.from = e.target.value; render(); return; }
+  if(e.target.matches('[data-action="filter-to"]')){ recFilter.to = e.target.value; render(); return; }
+});
+
+// live update slider label for gs-target without full re-render (smoother)
+document.addEventListener('input', (e) => {
+  if(e.target.matches('[data-input="gs-target"]')){
+    gsTarget = Number(e.target.value);
+    const val = document.querySelector('.target-value');
+    if(val) val.textContent = gsTarget + '%';
+  }
+  if(e.target.matches('[data-input="profile-target"]')){
+    const val = document.querySelector('.target-value');
+    if(val) val.textContent = e.target.value + '%';
+  }
+});
+
+document.addEventListener('submit', (e) => {
+  const form = e.target.closest('[data-form]');
+  if(!form) return;
+  e.preventDefault();
+  const kind = form.getAttribute('data-form');
+  const data = Object.fromEntries(new FormData(form).entries());
+
+  if(kind==='login'){
+    const errEl = document.getElementById('login-error');
+    const user = DB.users[data.email];
+    if(!user || user.password !== data.password){
+      errEl.textContent = 'That email and password don\'t match an account.';
+      errEl.hidden = false;
+      return;
+    }
+    DB.session = data.email; saveDB(DB);
+    toast(`Welcome back, ${user.name.split(' ')[0]}`);
+    navigate(user.onboarded ? '#/dashboard' : '#/get-started');
+    return;
+  }
+
+  if(kind==='register'){
+    const errEl = document.getElementById('register-error');
+    if(DB.users[data.email]){
+      errEl.textContent = 'An account with that email already exists.';
+      errEl.hidden = false;
+      return;
+    }
+    const user = newUser(data.name.trim(), data.email.trim(), data.password, data.role);
+    DB.users[data.email] = user;
+    DB.session = data.email;
+    saveDB(DB);
+    gsStep = 1; gsCourses = []; gsTarget = 75;
+    toast('Account created');
+    navigate('#/get-started');
+    return;
+  }
+
+  if(kind==='fp-request'){
+    const email = data.email.trim();
+    if(!DB.users[email]){
+      fpError = 'No account found with that email.';
+      render();
+      return;
+    }
+    fpEmail = email;
+    fpOtp = genOtp();
+    fpError = '';
+    fpStep = 2;
+    toast('Code sent (demo)');
+    render();
+    return;
+  }
+
+  if(kind==='fp-verify'){
+    if(data.otp.trim() !== fpOtp){
+      fpError = 'Incorrect code. Try again.';
+      render();
+      return;
+    }
+    fpError = '';
+    fpStep = 3;
+    render();
+    return;
+  }
+
+  if(kind==='fp-reset'){
+    if(data.password !== data.confirm){
+      fpError = 'Passwords do not match.';
+      render();
+      return;
+    }
+    const user = DB.users[fpEmail];
+    if(user){
+      user.password = data.password;
+      saveDB(DB);
+    }
+    fpError = '';
+    fpStep = 4;
+    toast('Password updated');
+    render();
+    return;
+  }
+
+  if(kind==='gs-add-course'){
+    const name = data.course.trim();
+    if(name && !gsCourses.includes(name)) gsCourses.push(name);
+    form.reset();
+    render();
+    return;
+  }
+
+  if(kind==='add-course'){
+    requireUserOr(u => {
+      const name = data.course.trim();
+      if(name){ u.courses.push({id: uid(), name}); saveDB(DB); toast('Course added'); render(); }
+    });
+    return;
+  }
+
+  if(kind==='update-profile'){
+    requireUserOr(u => {
+      u.name = data.name.trim() || u.name;
+      saveDB(DB);
+      toast('Profile updated');
+      render();
+    });
+    return;
+  }
+
+  if(kind==='add-record'){
+    requireUserOr(u => {
+      u.records.push({id: uid(), courseId: data.courseId, date: data.date, status: data.status});
+      saveDB(DB);
+      toast('Entry logged');
+      render();
+    });
+    return;
+  }
+});
+
+document.addEventListener('click', (e)=>{
+  const pop = document.getElementById('user-menu-pop');
+  if(pop && !pop.hidden && !e.target.closest('.user-menu')){
+    pop.hidden = true;
+  }
+});
+
+window.addEventListener('hashchange', render);
+window.addEventListener('DOMContentLoaded', () => {
+  document.documentElement.setAttribute('data-theme', getTheme());
+  if(!window.location.hash) window.location.hash = DB.session ? '#/dashboard' : '#/welcome';
+  render();
+});
+</script>
+</body>
+</html>
