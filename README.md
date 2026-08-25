@@ -1,4 +1,4 @@
-Absolutely. Since you want the **README to include your deployed Attendify URL**, here is the updated version based on the actual file and the live deployment. The deployed page is titled **“Attendify — attendance, kept honest.”** ([sunny-file-mover.lovable.app][1])
+Absolutely. Since you want the **README to include your deployed Attendify URL**, here is the updated version based on the actual file and the live deployment. The deployed page is titled **“Attendify — Attendance Management System”** ([sunny-file-mover.lovable.app][1])
 
 # Attendify — Attendance, Kept Honest
 
